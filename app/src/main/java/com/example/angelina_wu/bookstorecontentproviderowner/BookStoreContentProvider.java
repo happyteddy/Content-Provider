@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import static android.provider.BaseColumns._ID;
 
@@ -114,7 +115,27 @@ public class BookStoreContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        int count = 0;
+        count = mDb.delete(TABLE_NAME, selection, selectionArgs);
+
+       /* switch (mUriMatcher.match(uri)){
+            case 1:
+                count = mDb.delete(TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case 2:
+                String id = uri.getPathSegments().get(1);
+                count = mDb.delete( TABLE_NAME, _ID +  " = " + id +
+                        (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
+                //selection.isEmpty();
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }*/
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 
     @Override
