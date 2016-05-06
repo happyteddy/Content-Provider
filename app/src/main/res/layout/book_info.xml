@@ -33,7 +33,7 @@
                 android:id="@+id/seller_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/seller_name" />
+                android:hint="@string/empty" />
 
             <TextView
                 android:id="@+id/seller_id_title"
@@ -45,7 +45,7 @@
                 android:id="@+id/seller_id"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/seller_id" />
+                android:hint="@string/empty" />
         </TableRow>
 
         <TableRow>
@@ -60,7 +60,7 @@
                 android:id="@+id/book_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/book_name" />
+                android:hint="@string/empty" />
 
             <TextView
                 android:id="@+id/priced_title"
@@ -72,7 +72,7 @@
                 android:id="@+id/price"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/price" />
+                android:hint="@string/empty" />
         </TableRow>
 
         <TableRow>
@@ -87,7 +87,7 @@
                 android:id="@+id/buyer_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/buyer_name" />
+                android:hint="@string/empty" />
 
             <TextView
                 android:id="@+id/buyer_id_title"
@@ -99,7 +99,7 @@
                 android:id="@+id/buyer_id"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/buyer_id" />
+                android:hint="@string/empty" />
         </TableRow>
     </TableLayout>
 

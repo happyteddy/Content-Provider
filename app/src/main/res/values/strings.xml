@@ -8,4 +8,5 @@
     <string name="buyer_name">buyer name :</string>
     <string name="buyer_id">buyer ID :</string>
     <string name="sold">sold</string>
+    <string name="empty">-</string>
 </resources>
