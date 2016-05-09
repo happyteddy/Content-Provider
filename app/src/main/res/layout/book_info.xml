@@ -103,10 +103,12 @@
         </TableRow>
     </TableLayout>
 
-    <CheckBox
-        android:id="@+id/sold"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/sold"
         android:layout_weight="7"
-        android:hint="@string/sold" />
+        android:hint="@string/empty"
+        android:textAlignment="center"
+        />
 </LinearLayout>

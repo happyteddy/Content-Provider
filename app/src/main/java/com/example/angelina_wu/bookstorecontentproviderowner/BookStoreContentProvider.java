@@ -140,6 +140,8 @@ public class BookStoreContentProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        int count = 0;
+        count = mDb.update(TABLE_NAME, values, selection, selectionArgs);
+        return count;
     }
 }
