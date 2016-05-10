@@ -13,6 +13,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import static android.provider.BaseColumns._ID;
 
@@ -76,6 +77,7 @@ public class BookStoreContentProvider extends ContentProvider {
     public boolean onCreate() {
         mDatabaseHelper = new DatabaseHelper(getContext()); // getContext() :Retrieves the Context this provider is running in
         mDb = mDatabaseHelper.getWritableDatabase();
+        Log.d("ContentProvider","- onCreate");
         if(mDb == null) return false;
         else return true;
     }
