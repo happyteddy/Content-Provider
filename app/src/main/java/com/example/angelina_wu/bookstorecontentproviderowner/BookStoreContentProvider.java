@@ -11,8 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
 
 import static android.provider.BaseColumns._ID;
@@ -32,20 +32,19 @@ public class BookStoreContentProvider extends ContentProvider {
     public static final String BUYER_NAME = "buyer_name";
     public static final String BUYER_ID = "buyer_id";
 
-    private DatabaseHelper mDatabaseHelper;
+    private static final int INFORMATION_TABLE = 1;
+    private static final int INFORMATION_ID = 2;
+
     private SQLiteDatabase mDb;
 
-    static final String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/"+TABLE_NAME;
-    static final Uri CONTENT_URI = Uri.parse(URL);
+    static final Uri CONTENT_URI = Uri.withAppendedPath( Uri.parse("content://" + AUTHORITY) ,TABLE_NAME);
 
     private static final UriMatcher mUriMatcher;
     static {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        mUriMatcher.addURI(AUTHORITY,TABLE_NAME, 1);
-        mUriMatcher.addURI(AUTHORITY,TABLE_NAME + "/#" , 2);
+        mUriMatcher.addURI(AUTHORITY,TABLE_NAME, INFORMATION_TABLE);
+        mUriMatcher.addURI(AUTHORITY,TABLE_NAME + "/#" , INFORMATION_ID);
     }
-
-
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context context){
@@ -72,78 +71,109 @@ public class BookStoreContentProvider extends ContentProvider {
         }
     }
 
-
     @Override
     public boolean onCreate() {
-        mDatabaseHelper = new DatabaseHelper(getContext()); // getContext() :Retrieves the Context this provider is running in
-        mDb = mDatabaseHelper.getWritableDatabase();
+        DatabaseHelper databaseHelper = new DatabaseHelper(getContext()); // getContext() :Retrieves the Context this provider is running in
+        mDb = databaseHelper.getWritableDatabase();
         Log.d("ContentProvider","- onCreate");
-        if(mDb == null) return false;
-        else return true;
+        return mDb != null;
     }
-
-
-
 
     @Nullable
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
+        if((mUriMatcher.match(uri)) == INFORMATION_ID){
+            qb.appendWhere( _ID + "=" + uri.getPathSegments().get(1));
+        }
         Cursor c = qb.query(mDb, projection, selection, selectionArgs, null, null, sortOrder);
-        //c.setNotificationUri(getContext().getContentResolver(), uri);// register to watch a content URI for changes
+        c.setNotificationUri(getContext().getContentResolver(), uri);// register to watch a content URI for changes
         return c;
     }
 
     @Nullable
     @Override
-    public String getType(Uri uri) {
-        return null;
+    public String getType(@NonNull Uri uri) {
+        switch (mUriMatcher.match(uri)){
+            case INFORMATION_TABLE:
+                return "vnd.android.cursor.dir/vnd.example.information";
+
+            case INFORMATION_ID:
+                return "vnd.android.cursor.item/vnd.example.information";
+
+            default:
+                throw new IllegalArgumentException("Unsupported URI: " + uri);
+        }
     }
 
     @Nullable
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         long rowID = mDb.insert(TABLE_NAME, "", values);
 
         // If record is added successfully
         if (rowID > 0) {
-            return ContentUris.withAppendedId(CONTENT_URI, rowID);
-            //getContext().getContentResolver().notifyChange(_uri, null);
+            Uri _uri = ContentUris.withAppendedId(CONTENT_URI, rowID);
+            getContext().getContentResolver().notifyChange(_uri, null);
             // This notifies all the observers registered for that particular URI that change happened. 通知觀測者數據改變了
+
+            return _uri;
         }
         throw new SQLException("Failed to add a record into " + uri);
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         int count = 0;
-        count = mDb.delete(TABLE_NAME, selection, selectionArgs);
+        //count = mDb.delete(TABLE_NAME, selection, selectionArgs);
 
-       /* switch (mUriMatcher.match(uri)){
-            case 1:
+        switch (mUriMatcher.match(uri)){
+            case INFORMATION_TABLE :
                 count = mDb.delete(TABLE_NAME, selection, selectionArgs);
                 break;
 
-            case 2:
+            case INFORMATION_ID :
                 String id = uri.getPathSegments().get(1);
-                count = mDb.delete( TABLE_NAME, _ID +  " = " + id +
-                        (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
-                //selection.isEmpty();
+                if(selection.isEmpty()){
+                    count = mDb.delete( TABLE_NAME, _ID +  " = " + id ,selectionArgs);
+                }
+                else {
+                    count = mDb.delete( TABLE_NAME, _ID +  " = " + id + " AND (" + selection + ')' , selectionArgs );
+                }
                 break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
-        }*/
+        }
 
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         int count = 0;
-        count = mDb.update(TABLE_NAME, values, selection, selectionArgs);
+        //count = mDb.update(TABLE_NAME, values, selection, selectionArgs);
+        switch (mUriMatcher.match(uri)){
+            case INFORMATION_TABLE :
+                count = mDb.update(TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case INFORMATION_ID :
+                String id = uri.getPathSegments().get(1);
+                if(selection.isEmpty()){
+                    selection = _ID + "=" + id ;
+                    count = mDb.update(TABLE_NAME, values, selection, selectionArgs);
+                }
+                else {
+                    String selection_id = _ID + "=" + id ;
+                    count = mDb.update( TABLE_NAME, values, selection_id + " AND (" + selection + ')' , selectionArgs );
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 }
