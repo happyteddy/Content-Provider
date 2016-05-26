@@ -4,6 +4,8 @@ import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Build;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +17,7 @@ import android.widget.Toast;
 
 import static android.provider.BaseColumns._ID;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,13 +80,19 @@ public class MainActivity extends AppCompatActivity {
             }
         //}
     }
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
 
-        ListView lv = (ListView) findViewById(R.id.listView);
-        if( null != lv ) {
-            ((CursorAdapter) lv.getAdapter()).getCursor().close();
-        }
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }
